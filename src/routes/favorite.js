@@ -8,7 +8,9 @@ const {
 } = require('../controllers/favoriteController');
 
 router.post('/:slug/favorite', authMiddleware, postFavorite);
+
 router.delete('/:slug/favorite', authMiddleware, deleteFavoriteController);
+
 router.get('/me/favorites', authMiddleware, getFavoritesController);
 
 module.exports = router;

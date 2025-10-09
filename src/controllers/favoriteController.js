@@ -16,6 +16,7 @@ async function deleteFavoriteController(req, res) {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+  
 }
 
 async function getFavoritesController(req, res) {
