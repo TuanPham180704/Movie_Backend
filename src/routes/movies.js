@@ -1,55 +1,41 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/db');
-const { fetchNewMovies, fetchMovieDetail, saveMoviesToDB } = require('../services/movieService');
+const axios = require('axios');
+const BASE_URL = process.env.KKPHIM_API_URL;
 
-// GET /api/movies/new?page=1
-router.get('/new', async (req, res) => {
-  const page = Number(req.query.page) || 1;
+// ✅ GET /api/movies/trending
+router.get('/trending', async (req, res) => {
   try {
-    const movies = await fetchNewMovies(page);
-    if (movies.length) await saveMoviesToDB(movies); // lưu vào DB
-    res.json(movies);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch new movies' });
+    const response = await axios.get(`${BASE_URL}/danh-sach/phim-moi-cap-nhat`);
+    res.json(response.data.items);
+  } catch (error) {
+    console.error('Error trending:', error.message);
+    res.status(500).json({ error: 'Failed to get trending movies' });
   }
 });
 
-// GET /api/movies/:slug
-router.get('/:slug', async (req, res) => {
-  const { slug } = req.params;
-  try {
-    // check DB trước
-    const dbRes = await pool.query('SELECT * FROM movies WHERE slug=$1', [slug]);
-    if (dbRes.rows.length) return res.json(dbRes.rows[0]);
-
-    // nếu chưa có, fetch API
-    const movie = await fetchMovieDetail(slug);
-    if (movie) await saveMoviesToDB([movie]);
-    res.json(movie);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch movie detail' });
-  }
-});
-
-// GET /api/movies/search?keyword=xxx
+// ✅ GET /api/movies/search?keyword=&page=&type=&country=&year=
 router.get('/search', async (req, res) => {
-  const { keyword } = req.query;
+  const { keyword = '', page = 1, sort = 'moi-cap-nhat', type, country, year } = req.query;
   try {
-    const dbRes = await pool.query(`SELECT * FROM movies WHERE title ILIKE $1`, [`%${keyword}%`]);
-    res.json(dbRes.rows);
-  } catch (err) {
-    res.status(500).json({ error: 'Search failed' });
+    const url = `${BASE_URL}/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&page=${page}`;
+    const response = await axios.get(url);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error search:', error.message);
+    res.status(500).json({ error: 'Failed to search movies' });
   }
 });
 
-// GET /api/movies/popular
-router.get('/popular', async (req, res) => {
+// ✅ GET /api/movies/category/:category
+router.get('/category/:category', async (req, res) => {
+  const { category } = req.params;
   try {
-    const dbRes = await pool.query('SELECT * FROM movies ORDER BY release_year DESC LIMIT 20');
-    res.json(dbRes.rows);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to get popular movies' });
+    const response = await axios.get(`${BASE_URL}/v1/api/the-loai/${category}`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error category:', error.message);
+    res.status(500).json({ error: 'Failed to get category movies' });
   }
 });
 
