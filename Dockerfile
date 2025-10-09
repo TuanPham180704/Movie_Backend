@@ -1,16 +1,12 @@
-FROM node:18
+# Dockerfile
+FROM node:20-alpine
 
-# tạo app dir
 WORKDIR /usr/src/app
 
-# copy package.json trước để tận dụng cache
 COPY package*.json ./
+RUN npm install --production
 
-RUN npm install
-
-# copy source
 COPY . .
 
 EXPOSE 4000
-
-CMD ["npm", "run", "dev"]
+CMD ["node", "src/app.js"]
