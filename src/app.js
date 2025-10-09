@@ -6,7 +6,9 @@ require('dotenv').config();
 const movieRoutes = require('./routes/movies');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
-
+const favoriteRoutes = require('./routes/favorite');
+const historyRoutes = require('./routes/history');
+const commentRoutes = require('./routes/comment');
 const app = express();
 
 app.use(cors());
@@ -16,6 +18,9 @@ app.use(express.json());
 app.use('/api/movies', movieRoutes);
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
+app.use('/movies', favoriteRoutes);
+app.use('/movies', historyRoutes);
+app.use('/movies', commentRoutes);
 app.get('/', (req, res) => res.send('KKPhim Backend Running'));
 
 module.exports = app;
