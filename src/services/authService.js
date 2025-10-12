@@ -5,11 +5,11 @@ require('dotenv').config();
 
 const SALT_ROUNDS = 10;
 
-async function register(username, email, password) {
+async function register(username, email, password, role) {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const res = await pool.query(
-    'INSERT INTO users (username, email, password) VALUES ($1,$2,$3) RETURNING id, username, email',
-    [username, email, hashedPassword, 'user']
+    'INSERT INTO users (username, email, password,role) VALUES ($1,$2,$3,$4) RETURNING id, username, email,role',
+    [username, email, hashedPassword, role]
   );
   return res.rows[0];
 }

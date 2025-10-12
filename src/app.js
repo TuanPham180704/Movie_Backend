@@ -15,6 +15,7 @@ const adminUserRoutes = require('./routes/admin/user.admin.route');
 const adminEpisodeRoutes = require('./routes/admin/episode.admin.route');
 const adminCommentRoutes = require('./routes/admin/comment.admin.route');
 const app = express();
+app.use(express.json());
 
 app.use(cors());
 app.use(morgan('dev'));
