@@ -3,7 +3,6 @@ const morgan = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
 
-// Import routes
 const movieRoutes = require('./routes/movies');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');

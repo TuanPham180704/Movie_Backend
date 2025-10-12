@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const SALT_ROUNDS = 10;
 
-// register
+
 async function register(username, email, password) {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const res = await pool.query(
@@ -15,7 +15,7 @@ async function register(username, email, password) {
   return res.rows[0];
 }
 
-// login
+
 async function login(email, password) {
   const res = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
   if (!res.rows.length) throw new Error('User not found');
@@ -32,13 +32,13 @@ async function login(email, password) {
   return token;
 }
 
-// get profile
+
 async function getProfile(userId) {
   const res = await pool.query('SELECT id, username, email FROM users WHERE id=$1', [userId]);
   return res.rows[0];
 }
 
-// update profile
+
 async function updateProfile(userId, username, email) {
   const res = await pool.query(
     'UPDATE users SET username=$1, email=$2 WHERE id=$3 RETURNING id, username, email',

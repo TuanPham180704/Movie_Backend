@@ -1,6 +1,6 @@
 const pool = require('../config/db');
 
-// === FAVORITE ===
+
 async function addFavorite(userId, movieSlug) {
   const movieRes = await pool.query('SELECT id FROM movies WHERE slug=$1', [movieSlug]);
   if (!movieRes.rows.length) throw new Error('Movie not found');
@@ -34,7 +34,7 @@ async function getFavorites(userId) {
   return res.rows;
 }
 
-// === HISTORY ===
+
 async function addHistory(userId, movieSlug, episodeId = null) {
   const movieRes = await pool.query('SELECT id FROM movies WHERE slug=$1', [movieSlug]);
   if (!movieRes.rows.length) throw new Error('Movie not found');
