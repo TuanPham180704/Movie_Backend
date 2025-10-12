@@ -5,16 +5,14 @@ require('dotenv').config();
 
 const SALT_ROUNDS = 10;
 
-
 async function register(username, email, password) {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const res = await pool.query(
     'INSERT INTO users (username, email, password) VALUES ($1,$2,$3) RETURNING id, username, email',
-    [username, email, hashedPassword]
+    [username, email, hashedPassword, 'user']
   );
   return res.rows[0];
 }
-
 
 async function login(email, password) {
   const res = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
@@ -25,19 +23,17 @@ async function login(email, password) {
   if (!match) throw new Error('Incorrect password');
 
   const token = jwt.sign(
-    { id: user.id, username: user.username, email: user.email },
+    { id: user.id, username: user.username, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
   return token;
 }
 
-
 async function getProfile(userId) {
   const res = await pool.query('SELECT id, username, email FROM users WHERE id=$1', [userId]);
   return res.rows[0];
 }
-
 
 async function updateProfile(userId, username, email) {
   const res = await pool.query(
