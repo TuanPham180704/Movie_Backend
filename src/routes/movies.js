@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const BASE_URL = process.env.KKPHIM_API_URL;
+
+const BASE_URL = process.env.KKPHIM_API_URL || 'https://phimapi.com';
 const proxyVideo = require('../utils/proxyStream');
 const authMiddleware = require('../middlewares/authMiddleware');
 const pool = require('../config/db');
 
-// ✅ GET /api/movies/trending
 router.get('/trending', async (req, res) => {
   try {
     const response = await axios.get(`${BASE_URL}/danh-sach/phim-moi-cap-nhat`);
@@ -17,7 +17,6 @@ router.get('/trending', async (req, res) => {
   }
 });
 
-// ✅ GET /api/movies/search?keyword=&page=&type=&country=&year=
 router.get('/search', async (req, res) => {
   const { keyword = '', page = 1, sort = 'moi-cap-nhat', type, country, year } = req.query;
   try {
@@ -30,7 +29,6 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// ✅ GET /api/movies/category/:category
 router.get('/category/:category', async (req, res) => {
   const { category } = req.params;
   try {
@@ -66,4 +64,3 @@ router.get('/:slug/stream/:episode', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
-
