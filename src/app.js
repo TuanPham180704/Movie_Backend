@@ -25,7 +25,6 @@ app.get('/', (req, res) => res.send('🎬 KKPhim Backend Running...'));
 
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
-
 app.use('/api/movies', movieRoutes);
 app.use('/api/movies', favoriteRoutes);
 app.use('/api/movies', historyRoutes);
