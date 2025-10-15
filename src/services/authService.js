@@ -8,8 +8,8 @@ const SALT_ROUNDS = 10;
 async function register(username, email, password, role) {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const res = await pool.query(
-    'INSERT INTO users (username, email, password,role) VALUES ($1,$2,$3,$4) RETURNING id, username, email,role',
-    [username, email, hashedPassword, role]
+    'INSERT INTO users (username, email, password) VALUES ($1,$2,$3) RETURNING id, username, email',
+    [username, email, hashedPassword]
   );
   return res.rows[0];
 }
@@ -23,7 +23,7 @@ async function login(email, password) {
   if (!match) throw new Error('Incorrect password');
 
   const token = jwt.sign(
-    { id: user.id, username: user.username, email: user.email, role: user.role },
+    { id: user.id, username: user.username, email: user.email },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
