@@ -12,3 +12,6 @@ router.get("/:slug", movieController.getMovieDetail);
 router.get("/:slug/video", movieController.getMovieVideo);
 
 module.exports = router;
+
+
+

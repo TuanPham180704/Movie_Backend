@@ -1,12 +1,10 @@
-const movieService = require("../services/movieService");
+const movieService = require('../services/movieService');
 
 async function getMovies(req, res) {
   const page = parseInt(req.query.page) || 1;
   const movies = await movieService.fetchNewMovies(page);
 
-  if (!movies.length)
-    return res.status(404).json({ message: "Không tìm thấy phim nào" });
-  await movieService.saveMoviesToDB(movies);
+  if (!movies.length) return res.status(404).json({ message: 'Không tìm thấy phim nào' });
 
   res.json({
     page,
@@ -15,12 +13,11 @@ async function getMovies(req, res) {
   });
 }
 
-
 async function getMovieDetail(req, res) {
   const { slug } = req.params;
   const movie = await movieService.fetchMovieDetail(slug);
 
-  if (!movie) return res.status(404).json({ message: "Không tìm thấy phim" });
+  if (!movie) return res.status(404).json({ message: 'Không tìm thấy phim' });
 
   const videoUrl = await movieService.getVideoUrl(slug, 1);
 
@@ -39,8 +36,7 @@ async function getMovieVideo(req, res) {
   const episode = req.query.episode || 1;
   const url = await movieService.getVideoUrl(slug, episode);
 
-  if (!url)
-    return res.status(404).json({ message: "Không tìm thấy link video" });
+  if (!url) return res.status(404).json({ message: 'Không tìm thấy link video' });
 
   res.json({ slug, episode, videoUrl: url });
 }
