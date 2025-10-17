@@ -1,127 +1,114 @@
 const movieService = require('../services/movieService');
 
-// 🎬 Lấy danh sách phim mới cập nhật
-async function getMovies(req, res) {
-  const page = parseInt(req.query.page) || 1;
-  const movies = await movieService.fetchNewMovies(page);
-  if (!movies || !movies.length)
-    return res.status(404).json({ message: 'Không tìm thấy phim nào' });
+// 1️⃣ Phim mới cập nhật
+const getNewMovies = async (req, res) => {
+  try {
+    const data = await movieService.getNewMovies(req.query);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-  res.json({
-    page,
-    total: movies.length,
-    movies,
-  });
-}
+// 2️⃣ Chi tiết phim
+const getMovieDetail = async (req, res) => {
+  try {
+    const data = await movieService.getMovieDetail(req.params.slug);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-// 🎥 Chi tiết phim theo slug
-async function getMovieDetail(req, res) {
-  const { slug } = req.params;
-  const movie = await movieService.fetchMovieDetail(slug);
-  if (!movie) return res.status(404).json({ message: 'Không tìm thấy phim' });
+// 3️⃣ TMDB
+const getByTMDB = async (req, res) => {
+  try {
+    const { type, id } = req.params;
+    const data = await movieService.getByTMDB(type, id);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-  const videoUrl = await movieService.getVideoUrl(slug, 1);
+// 4️⃣ Danh sách tổng hợp
+const getMovieList = async (req, res) => {
+  try {
+    const { type_list } = req.params;
+    const data = await movieService.getMovieList(type_list, req.query);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-  res.json({
-    slug,
-    title: movie.movie?.name || movie.name,
-    description: movie.movie?.content || movie.content,
-    year: movie.movie?.year || movie.year,
-    poster_url: movie.movie?.thumb_url || movie.poster_url,
-    videoUrl,
-  });
-}
+// 5️⃣ Tìm kiếm
+const searchMovies = async (req, res) => {
+  try {
+    const data = await movieService.searchMovies(req.query);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-// 🎞️ Lấy link video theo slug + tập
-async function getMovieVideo(req, res) {
-  const { slug } = req.params;
-  const episode = req.query.episode || 1;
-  const url = await movieService.getVideoUrl(slug, episode);
-  if (!url)
-    return res.status(404).json({ message: 'Không tìm thấy link video' });
+// 6️⃣ Thể loại
+const getGenres = async (req, res) => {
+  try {
+    const data = await movieService.getGenres();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-  res.json({ slug, episode, videoUrl: url });
-}
+const getGenreDetail = async (req, res) => {
+  try {
+    const data = await movieService.getGenreDetail(req.params.type_list, req.query);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-// 🔖 Lấy phim theo type (phim-le, phim-bo, hoat-hinh...)
-async function getMoviesByType(req, res) {
-  const { type } = req.params;
-  const movies = await movieService.fetchMoviesByType(type, req.query);
-  if (!movies || !movies.length)
-    return res.status(404).json({ message: 'Không tìm thấy phim theo type' });
-  res.json({ type, movies });
-}
+// 7️⃣ Quốc gia
+const getCountries = async (req, res) => {
+  try {
+    const data = await movieService.getCountries();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-// 🔍 Tìm kiếm phim
-async function searchMovies(req, res) {
-  const keyword = req.query.q || req.query.keyword;
-  if (!keyword)
-    return res.status(400).json({ message: 'Thiếu từ khóa tìm kiếm (q)' });
+const getCountryDetail = async (req, res) => {
+  try {
+    const data = await movieService.getCountryDetail(req.params.type_list, req.query);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-  const movies = await movieService.searchMovies(keyword, req.query);
-  if (!movies || !movies.length)
-    return res.status(404).json({ message: 'Không tìm thấy phim phù hợp' });
-  res.json({ keyword, movies });
-}
-
-// 🗂️ Danh sách thể loại phim
-async function getCategories(req, res) {
-  const categories = await movieService.fetchCategories();
-  if (!categories || !categories.length)
-    return res.status(404).json({ message: 'Không tìm thấy thể loại phim' });
-  res.json(categories);
-}
-
-// 🎭 Lấy phim theo thể loại
-async function getMoviesByCategory(req, res) {
-  const { category } = req.params;
-  const movies = await movieService.fetchMoviesByCategory(category, req.query);
-  if (!movies || !movies.length)
-    return res
-      .status(404)
-      .json({ message: `Không tìm thấy phim trong thể loại ${category}` });
-  res.json({ category, movies });
-}
-
-// 🌍 Danh sách quốc gia
-async function getCountries(req, res) {
-  const countries = await movieService.fetchCountries();
-  if (!countries || !countries.length)
-    return res.status(404).json({ message: 'Không tìm thấy danh sách quốc gia' });
-  res.json(countries);
-}
-
-// 🇻🇳 Lấy phim theo quốc gia
-async function getMoviesByCountry(req, res) {
-  const { country } = req.params;
-  const movies = await movieService.fetchMoviesByCountry(country, req.query);
-  if (!movies || !movies.length)
-    return res
-      .status(404)
-      .json({ message: `Không tìm thấy phim theo quốc gia ${country}` });
-  res.json({ country, movies });
-}
-
-// 📅 Lấy phim theo năm
-async function getMoviesByYear(req, res) {
-  const { year } = req.params;
-  const movies = await movieService.fetchMoviesByYear(year, req.query);
-  if (!movies || !movies.length)
-    return res
-      .status(404)
-      .json({ message: `Không tìm thấy phim phát hành năm ${year}` });
-  res.json({ year, movies });
-}
+// 8️⃣ Năm phát hành
+const getMoviesByYear = async (req, res) => {
+  try {
+    const data = await movieService.getMoviesByYear(req.params.type_list, req.query);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 module.exports = {
-  getMovies,
+  getNewMovies,
   getMovieDetail,
-  getMovieVideo,
-  getMoviesByType,
+  getByTMDB,
+  getMovieList,
   searchMovies,
-  getCategories,
-  getMoviesByCategory,
+  getGenres,
+  getGenreDetail,
   getCountries,
-  getMoviesByCountry,
+  getCountryDetail,
   getMoviesByYear,
 };

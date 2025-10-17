@@ -1,19 +1,32 @@
 const express = require('express');
-const router = express.Router();
 const movieController = require('../controllers/movieController');
 
-router.get('/', movieController.getMovies);
+const router = express.Router();
 
-router.get('/search', movieController.searchMovies);
-router.get('/type/:type_list', movieController.getMoviesByType);
-router.get('/categories', movieController.getCategories);
-router.get('/category/:category', movieController.getMoviesByCategory);
-router.get('/countries', movieController.getCountries);
-router.get('/country/:country', movieController.getMoviesByCountry);
-router.get('/year/:year', movieController.getMoviesByYear);
+// 1️⃣ Danh sách phim mới cập nhật (v1, v2, v3)
+router.get('/new', movieController.getNewMovies);
 
-// Đặt cuối cùng
+// 2️⃣ Thông tin phim & danh sách tập
 router.get('/:slug', movieController.getMovieDetail);
-router.get('/:slug/video', movieController.getMovieVideo);
+
+// 3️⃣ Thông tin theo TMDB ID
+router.get('/tmdb/:type/:id', movieController.getByTMDB);
+
+// 4️⃣ Danh sách tổng hợp
+router.get('/list/:type_list', movieController.getMovieList);
+
+// 5️⃣ Tìm kiếm
+router.get('/search', movieController.searchMovies);
+
+// 6️⃣ Thể loại
+router.get('/genres', movieController.getGenres);
+router.get('/genres/:type_list', movieController.getGenreDetail);
+
+// 7️⃣ Quốc gia
+router.get('/countries', movieController.getCountries);
+router.get('/countries/:type_list', movieController.getCountryDetail);
+
+// 8️⃣ Năm phát hành
+router.get('/years/:type_list', movieController.getMoviesByYear);
 
 module.exports = router;
