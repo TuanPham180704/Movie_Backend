@@ -1,4 +1,4 @@
-const { register, login } = require('../services/authService');
+const { register, login, getProfile, updateProfile } = require('../services/authService');
 
 async function registerController(req, res) {
   const { username, email, password } = req.body;
@@ -21,5 +21,23 @@ async function loginController(req, res) {
     res.status(400).json({ error: error.message });
   }
 }
+async function getMeController(req, res) {
+  try {
+    const user = await getProfile(req.user.id);
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
 
-module.exports = { registerController, loginController };
+async function updateMeController(req, res) {
+  const { username, email } = req.body;
+  try {
+    const updatedUser = await updateProfile(req.user.id, username, email);
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
+
+module.exports = { registerController, loginController, getMeController, updateMeController };
