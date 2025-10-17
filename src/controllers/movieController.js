@@ -40,9 +40,61 @@ async function getMovieVideo(req, res) {
 
   res.json({ slug, episode, videoUrl: url });
 }
+async function getMoviesByType(req, res) {
+  const { type_list } = req.params;
+  const movies = await movieService.fetchMoviesByType(type_list, req.query);
+  res.json({ type_list, movies });
+}
+
+async function searchMovies(req, res) {
+  const { keyword } = req.query;
+  const movies = await movieService.searchMovies(keyword, req.query);
+  if (!movies) return res.status(404).json({ message: 'Không tìm thấy phim' });
+  res.json({ keyword, movies });
+}
+
+async function getCategories(req, res) {
+  const categories = await movieService.fetchCategories();
+  if (!categories) return res.status(404).json({ message: 'Không tìm thấy thể loại phim' });
+  res.json(categories);
+}
+
+async function getMoviesByCategory(req, res) {
+  const { category } = req.params;
+  const movies = await movieService.fetchMoviesByCategory(category, req.query);
+  if (!movies) return res.status(404).json({ message: 'Không tìm thấy phim' });
+  res.json({ category, movies });
+}
+
+async function getCountries(req, res) {
+  const countries = await movieService.fetchCountries();
+  if (!countries) return res.status(404).json({ message: 'Không tìm thấy phim theo quốc gia' });
+  res.json(countries);
+}
+
+async function getMoviesByCountry(req, res) {
+  const { country } = req.params;
+  const movies = await movieService.fetchMoviesByCountry(country, req.query);
+  if (!movies) return res.status(404).json({ message: 'Không tìm thấy phim theo quốc gia' });
+  res.json({ country, movies });
+}
+
+async function getMoviesByYear(req, res) {
+  const { year } = req.params;
+  const movies = await movieService.fetchMoviesByYear(year, req.query);
+  if (!movies) return res.status(404).json({ message: 'Không tìm thấy phim theo năm này' });
+  res.json({ year, movies });
+}
 
 module.exports = {
   getMovies,
   getMovieDetail,
   getMovieVideo,
+  getMoviesByType,
+  searchMovies,
+  getCategories,
+  getMoviesByCategory,
+  getCountries,
+  getMoviesByCountry,
+  getMoviesByYear,
 };
