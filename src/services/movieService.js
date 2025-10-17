@@ -1,44 +1,45 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://example.com'; 
-
+const BASE_URL = process.env.KKPHIM_API_URL || 'https://phimapi.com';
 
 async function getVideoUrl(slug, episode = 1) {
   try {
     const detail = await fetchMovieDetail(slug);
     if (!detail || !detail.episodes || detail.episodes.length === 0) return null;
 
-    const epIndex = parseInt(episode) - 1 || 0;
+    const epIndex = parseInt(episode) - 1;
     const server = detail.episodes[0];
     const ep = server.server_data?.[epIndex];
 
     if (!ep) return null;
     return ep.link_m3u8 || ep.link_embed || null;
   } catch (error) {
-    console.error('❌ Lỗi khi lấy video URL:', error);
+    console.error('❌ Lỗi khi lấy video URL:', error.response?.data || error.message);
     return null;
   }
 }
 
-
 async function fetchNewMovies(page = 1) {
   try {
-    const res = await axios.get(`${BASE_URL}/danh-sach/phim-moi-cap-nhat?page=${page}`, {
+    const url = `${BASE_URL}/danh-sach/phim-moi-cap-nhat?page=${page}`;
+    const res = await axios.get(url, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
     });
-    return res.data.items || [];
+    // Nếu API trả về { data: { items: [...] } }
+    return res.data.data?.items || res.data.items || [];
   } catch (error) {
-    console.error('❌ Lỗi khi lấy danh sách phim mới:', error);
+    console.error('❌ Lỗi khi lấy danh sách phim mới:', error.response?.data || error.message);
     return [];
   }
 }
 
 async function fetchMovieDetail(slug) {
   try {
-    const res = await axios.get(`${BASE_URL}/phim/${slug}`);
-    return res.data || null;
+    const url = `${BASE_URL}/phim/${slug}`;
+    const res = await axios.get(url);
+    return res.data.data || res.data || null;
   } catch (error) {
-    console.error('❌ Lỗi khi lấy chi tiết phim:', error);
+    console.error('❌ Lỗi khi lấy chi tiết phim:', error.response?.data || error.message);
     return null;
   }
 }
@@ -46,10 +47,14 @@ async function fetchMovieDetail(slug) {
 async function fetchMoviesByType(type_list, params = {}) {
   try {
     const query = new URLSearchParams(params).toString();
-    const res = await axios.get(`${BASE_URL}/v1/api/danh-sach/${type_list}?${query}`);
-    return res.data.items || [];
+    const url = `${BASE_URL}/danh-sach/${type_list}?${query}`;
+    const res = await axios.get(url);
+    return res.data.data?.items || res.data.items || [];
   } catch (error) {
-    console.error(`❌ Lỗi khi lấy danh sách phim theo type (${type_list}):`, error);
+    console.error(
+      `❌ Lỗi khi lấy danh sách phim theo type (${type_list}):`,
+      error.response?.data || error.message
+    );
     return [];
   }
 }
@@ -57,20 +62,22 @@ async function fetchMoviesByType(type_list, params = {}) {
 async function searchMovies(keyword, params = {}) {
   try {
     const query = new URLSearchParams({ keyword, ...params }).toString();
-    const res = await axios.get(`${BASE_URL}/v1/api/tim-kiem?${query}`);
-    return res.data.items || [];
+    const url = `${BASE_URL}/tim-kiem?${query}`;
+    const res = await axios.get(url);
+    return res.data.data?.items || res.data.items || [];
   } catch (error) {
-    console.error('❌ Lỗi khi tìm kiếm phim:', error);
+    console.error('❌ Lỗi khi tìm kiếm phim:', error.response?.data || error.message);
     return [];
   }
 }
 
 async function fetchCategories() {
   try {
-    const res = await axios.get(`${BASE_URL}/the-loai`);
-    return res.data.items || [];
+    const url = `${BASE_URL.replace('/v1/api', '')}/the-loai`;
+    const res = await axios.get(url);
+    return res.data.data?.items || res.data.items || [];
   } catch (error) {
-    console.error('❌ Lỗi khi lấy danh sách thể loại:', error);
+    console.error('❌ Lỗi khi lấy danh sách thể loại:', error.response?.data || error.message);
     return [];
   }
 }
@@ -78,20 +85,25 @@ async function fetchCategories() {
 async function fetchMoviesByCategory(category, params = {}) {
   try {
     const query = new URLSearchParams(params).toString();
-    const res = await axios.get(`${BASE_URL}/v1/api/the-loai/${category}?${query}`);
-    return res.data.items || [];
+    const url = `${BASE_URL}/the-loai/${category}?${query}`;
+    const res = await axios.get(url);
+    return res.data.data?.items || res.data.items || [];
   } catch (error) {
-    console.error(`❌ Lỗi khi lấy phim theo thể loại (${category}):`, error);
+    console.error(
+      `❌ Lỗi khi lấy phim theo thể loại (${category}):`,
+      error.response?.data || error.message
+    );
     return [];
   }
 }
 
 async function fetchCountries() {
   try {
-    const res = await axios.get(`${BASE_URL}/quoc-gia`);
-    return res.data.items || [];
+    const url = `${BASE_URL.replace('/v1/api', '')}/quoc-gia`;
+    const res = await axios.get(url);
+    return res.data.data?.items || res.data.items || [];
   } catch (error) {
-    console.error('❌ Lỗi khi lấy danh sách quốc gia:', error);
+    console.error('❌ Lỗi khi lấy danh sách quốc gia:', error.response?.data || error.message);
     return [];
   }
 }
@@ -99,10 +111,14 @@ async function fetchCountries() {
 async function fetchMoviesByCountry(country, params = {}) {
   try {
     const query = new URLSearchParams(params).toString();
-    const res = await axios.get(`${BASE_URL}/v1/api/quoc-gia/${country}?${query}`);
-    return res.data.items || [];
+    const url = `${BASE_URL}/quoc-gia/${country}?${query}`;
+    const res = await axios.get(url);
+    return res.data.data?.items || res.data.items || [];
   } catch (error) {
-    console.error(`❌ Lỗi khi lấy phim theo quốc gia (${country}):`, error);
+    console.error(
+      `❌ Lỗi khi lấy phim theo quốc gia (${country}):`,
+      error.response?.data || error.message
+    );
     return [];
   }
 }
@@ -110,10 +126,11 @@ async function fetchMoviesByCountry(country, params = {}) {
 async function fetchMoviesByYear(year, params = {}) {
   try {
     const query = new URLSearchParams(params).toString();
-    const res = await axios.get(`${BASE_URL}/v1/api/nam/${year}?${query}`);
-    return res.data.items || [];
+    const url = `${BASE_URL}/nam/${year}?${query}`;
+    const res = await axios.get(url);
+    return res.data.data?.items || res.data.items || [];
   } catch (error) {
-    console.error(`❌ Lỗi khi lấy phim theo năm (${year}):`, error);
+    console.error(`❌ Lỗi khi lấy phim theo năm (${year}):`, error.response?.data || error.message);
     return [];
   }
 }
