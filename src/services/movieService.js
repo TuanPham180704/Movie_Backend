@@ -33,29 +33,30 @@ const getMovieList = async (type_list, params) => {
 };
 
 // 5️⃣ Tìm kiếm
-const searchMovies = async (params) => {
-  const query = new URLSearchParams(params).toString();
-  const { data } = await axios.get(`${BASE_URL}/v1/api/tim-kiem?${query}`);
-  return data;
+const searchMovies = async (query) => {
+  const q = query.q || '';
+  if (!q) return [];
+  const { data } = await axios.get(`${BASE_URL}/tim-kiem?q=${encodeURIComponent(q)}`);
+  if (data?.root?.status) return data.root.movie || [];
+  return [];
 };
 
 // 6️⃣ Thể loại
 const getGenres = async () => {
   const { data } = await axios.get(`${BASE_URL}/the-loai`);
-  return data;
+  return data; // trả full list
 };
-
+const getCountries = async () => {
+  const { data } = await axios.get(`${BASE_URL}/quoc-gia`);
+  return data; // trả full list
+};
 const getGenreDetail = async (type_list, params) => {
   const query = new URLSearchParams(params).toString();
   const { data } = await axios.get(`${BASE_URL}/v1/api/the-loai/${type_list}?${query}`);
   return data;
 };
 
-// 7️⃣ Quốc gia
-const getCountries = async () => {
-  const { data } = await axios.get(`${BASE_URL}/quoc-gia`);
-  return data;
-};
+
 
 const getCountryDetail = async (type_list, params) => {
   const query = new URLSearchParams(params).toString();

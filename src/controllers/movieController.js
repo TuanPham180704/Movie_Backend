@@ -45,10 +45,10 @@ const getMovieList = async (req, res) => {
 // 5️⃣ Tìm kiếm
 const searchMovies = async (req, res) => {
   try {
-    const data = await movieService.searchMovies(req.query);
-    res.json(data);
+    const movies = await movieService.searchMovies(req.query);
+    res.json({ status: true, result: movies });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status: false, error: err.message });
   }
 };
 
@@ -58,10 +58,18 @@ const getGenres = async (req, res) => {
     const data = await movieService.getGenres();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status: false, msg: err.message });
   }
 };
-
+// 7️⃣ Quốc gia
+const getCountries = async (req, res) => {
+  try {
+    const data = await movieService.getCountries();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ status: false, msg: err.message });
+  }
+};
 const getGenreDetail = async (req, res) => {
   try {
     const data = await movieService.getGenreDetail(req.params.type_list, req.query);
@@ -71,15 +79,7 @@ const getGenreDetail = async (req, res) => {
   }
 };
 
-// 7️⃣ Quốc gia
-const getCountries = async (req, res) => {
-  try {
-    const data = await movieService.getCountries();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+
 
 const getCountryDetail = async (req, res) => {
   try {
